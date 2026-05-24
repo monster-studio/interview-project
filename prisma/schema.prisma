@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum Location {
+  BAG
+  BANK
+}
+
+// A Pokémon species (e.g. Pikachu #25, fire/flying Charizard)
+model Pokemon {
+  id        String           @id @default(cuid())
+  number    Int              @unique
+  name      String
+  types     String[]
+  ownedBy   TrainerPokemon[]
+}
+
+// A trainer profile
+model Trainer {
+  id      String           @id @default(cuid())
+  name    String
+  gender  Gender
+  age     Int
+  pokemon TrainerPokemon[]
+}
+
+// A specific Pokémon owned by a trainer (with nickname, level, etc.)
+model TrainerPokemon {
+  id        String   @id @default(cuid())
+  nickname  String
+  level     Int
+  gender    Gender
+  location  Location @default(BANK)
+
+  trainerId String
+  trainer   Trainer  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  pokemonId String
+  pokemon   Pokemon  @relation(fields: [pokemonId], references: [id])
+}
